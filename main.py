@@ -31,9 +31,9 @@ class Player:
     def dice_roll(self):
         self.cell = (self.cell + random.randint(1, 12)) % cells_count
 
-    def action(self):
+    def in_cell(self):
         if (self.cell + 1) % 4 == 0:
-            special_cell_active = SPECIAL_CELLS[(self.cell + 1) // 4]
+            special_cell_activate = SPECIAL_CELLS[(self.cell + 1) // 4]
         else:
             choice = int(input('1 - buy, 0 - skip'))
             property_name = list(property_list[self.cell // 4])[self.cell % 4]
@@ -44,13 +44,30 @@ class Player:
 
 
 class Logic:
-    def __init__(self):
-        pass
+    def __init__(self, players):
+        self.players = players
 
 
 class Game:
-    def __init__(self):
-        pass
+    def __init__(self, players_count=2):
+        self.players_count = players_count
+        self.players = []
+        self.logic = Logic(self.players)
+        self.player_number = 0
+
+    def players_create(self):
+        for i in range(self.players_count):
+            name = input(f"Input {i + 1} player name: ")
+            player = Player(name)
+            self.players.append(player)
+
+    def move(self):
+        active_player = self.players[self.player_number]
+        active_player.dice_roll()
+        active_player.in_cell()
+        self.player_number = (self.player_number + 1) % self.players_count
 
 
 game = Game()
+while True:
+    game.move()
