@@ -1,6 +1,7 @@
 import random
 
 
+
 SPECIAL_CELLS = [i for i in range(4)]
 
 property_list = [{"p1": [4000, None], "p2": [3800, None], "p3": [4400, None]},    SPECIAL_CELLS[0],
@@ -26,6 +27,7 @@ class Player:
         self.name = name
         self.money = 15000
         self.cell = 0
+        self.skip = False
 
     def dice_roll(self):
         self.cell = (self.cell + random.randint(1, 12)) % cells_count
@@ -56,9 +58,12 @@ class Game:
 
     def move(self):
         active_player = self.players[self.player_number]
-        active_player.dice_roll()
-        active_player.in_cell()
-        self.player_number = (self.player_number + 1) % self.players_count
+        if not active_player.skip:
+            active_player.dice_roll()
+            active_player.in_cell()
+            self.player_number = (self.player_number + 1) % self.players_count
+        else:
+            print("relax and skip your move")
 
     def active(self):
         for i in self.players:
