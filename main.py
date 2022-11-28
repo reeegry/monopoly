@@ -24,7 +24,6 @@ class Interface:
 class Player:
     def __init__(self, name):
         self.name = name
-        #self.property = {}
         self.money = 15000
         self.cell = 0
 
@@ -43,16 +42,10 @@ class Player:
                 self.money -= property_price
 
 
-class Logic:
-    def __init__(self, players):
-        self.players = players
-
-
 class Game:
     def __init__(self, players_count=2):
         self.players_count = players_count
         self.players = []
-        self.logic = Logic(self.players)
         self.player_number = 0
 
     def players_create(self):
@@ -67,7 +60,14 @@ class Game:
         active_player.in_cell()
         self.player_number = (self.player_number + 1) % self.players_count
 
+    def active(self):
+        for i in self.players:
+            if self.players[i].money() < 0:
+                return False
+
+        return True
+
 
 game = Game()
-while True:
+while game.active():
     game.move()
