@@ -1,10 +1,11 @@
 import random
+import special_cells
 
 
-property_list = {"p1": [4000, None, 0], "p2": [3800, None, 0], "p3": [4400, None, 0], "s1" : [0],    
-                 "p4": [4000, None, 0], "p5": [4000, None, 0], "p6": [4000, None, 0], "s2" : [0], 
-                 "p7": [4000, None, 0], "p8": [4000, None, 0], "p9": [4000, None, 0], "s3" : [0],   
-                 "p10": [4000, None, 0], "p11": [4000, None, 0], "p12": [4000, None, 0], "s4" : [0]}
+property_list = {"p1": [4000, None, 0], "p2": [3800, None, 0], "p3": [4400, None, 0], "s1" : [-1],    
+                 "p4": [4000, None, 0], "p5": [4000, None, 0], "p6": [4000, None, 0], "s2" : [-1], 
+                 "p7": [4000, None, 0], "p8": [4000, None, 0], "p9": [4000, None, 0], "s3" : [-1],   
+                 "p10": [4000, None, 0], "p11": [4000, None, 0], "p12": [4000, None, 0], "s4" : [-1]}
 
 cells_count = len(property_list)
 
@@ -37,6 +38,17 @@ class Interface:
         print(f"cell {player.cell}")
         print(f"property name {property_name}")
 
+    def forfeit(self, player):
+        print(f"player {player.name} paid forfeit")
+
+    def skip(self, player):
+        print(f"player {player.name} got into jail, skip one step")
+    
+    def lucky(self, plyaer):
+        print(f"player {plyaer.name} found a treasure in his backyard")
+
+    def surcharge(self, player):
+        print(f"player {player.name} got into a fight with a tax worker in a bar and was subject to additional taxation")
 
 class Player:
     def __init__(self, name):
@@ -75,26 +87,23 @@ class Player:
 
     def in_cell(self):
         property_name = list(property_list)[self.cell]
-        if len(property_list[property_name]) == 1:
-            print("special cell, not ready yet")
-        else:
-            property_price = property_list[property_name][0]
-            owner = property_list[property_name][1]
-            
-            cost_for_stand = property_list[property_name][2]
-            if owner != self.name and owner != None and cost_for_stand > 0:
-                return owner, cost_for_stand
+        property_price = property_list[property_name][0]
+        owner = property_list[property_name][1]
+        
+        cost_for_stand = property_list[property_name][2]
+        if owner != self.name and owner != None and cost_for_stand > 0:
+            return owner, cost_for_stand
 
-            choice = int(input(f'{property_name, property_price} 1 - buy, 0 - skip: '))
+        choice = int(input(f'{property_name, property_price} 1 - buy, 0 - skip: '))
 
 
-            if choice and self.money > property_price and owner == None:
-                property_list[property_name][1] = self.name
-                property_list[property_name][2] = property_price // 10
-                self.properties.append([property_name, property_list[property_name][3]])
-                self.money -= property_price
-                self.cost_for_another_players()
-            
+        if choice and self.money > property_price and owner == None:
+            property_list[property_name][1] = self.name
+            property_list[property_name][2] = property_price // 10
+            self.properties.append([property_name, property_list[property_name][3]])
+            self.money -= property_price
+            self.cost_for_another_players()
+        
         return None, 0
             
 
@@ -129,14 +138,33 @@ class Game:
         active_player = self.players[self.player_number]
         if not active_player.skip:
             active_player.dice_roll()
-            self.interface.step(active_player)
-            player_to_name, sum = active_player.in_cell()
-            if player_to_name != None and sum != 0: 
-                player_to = self.give_player_obj_from_name(player_to_name)
-                self.transaction(player_to, active_player, sum)
-                self.interface.transfer_print(active_player.name, player_to_name, sum)
-            
+            property_name = list(property_list)[active_player.cell]
+            if len(property_list[property_name]) == 1:
+                if property_name == "s1":
+                    special_cells.forfeit(active_player)
+                    self.interface.forfeit(active_player)
+                elif property_name == "s2":
+                    special_cells.skip(active_player)
+                    self.interface.skip(active_player)
+                elif property_name == "s3":
+                    special_cells.lucky(active_player)
+                    self.interface.lucky(active_player)
+                elif property_name == "s4":
+                    special_cells.surcharge(active_player)
+                    self.interface.surcharge(active_player)
+            else:
+                player_to_name, sum = active_player.in_cell()
+                self.interface.step(active_player)
+                if player_to_name != None and sum != 0: 
+                    player_to = self.give_player_obj_from_name(player_to_name)
+                    self.transaction(player_to, active_player, sum)
+                    self.interface.transfer_print(active_player.name, player_to_name, sum)
+                
             self.player_number = (self.player_number + 1) % self.players_count
+
+        else:
+            print("relax and skip your move")
+            active_player.skip = False
 
     def active(self):
         for player in self.players:
@@ -148,8 +176,6 @@ class Game:
 
 game = Game()
 while game.active():
-    game.move()
-    # for i in game.players:
-    #     print(i)
-
     game.interface.rendering()
+    game.move()
+    input("Input Enter for continue")
