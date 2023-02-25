@@ -31,6 +31,12 @@ class Interface:
     def transfer_print(self, player_from, player_to, sum):
         print(f"{player_from} gave {player_to} {sum}$")
 
+    def step(self, player):
+        property_name = list(property_list)[player.cell]
+        print(f"player {player.name}")
+        print(f"cell {player.cell}")
+        print(f"property name {property_name}")
+
 
 class Player:
     def __init__(self, name):
@@ -45,10 +51,6 @@ class Player:
         if self.cell > cells_count:
             self.money += 1000
         self.cell %= cells_count
-        property_name = list(property_list)[self.cell]
-        print(self.name, "step")
-        print("property_name", property_name)
-        print("cell", self.cell)
 
     def cost_for_another_players(self):
         temp_count = [0 for i in range(sphere_code)]
@@ -127,15 +129,14 @@ class Game:
         active_player = self.players[self.player_number]
         if not active_player.skip:
             active_player.dice_roll()
+            self.interface.step(active_player)
             player_to_name, sum = active_player.in_cell()
             if player_to_name != None and sum != 0: 
                 player_to = self.give_player_obj_from_name(player_to_name)
                 self.transaction(player_to, active_player, sum)
                 self.interface.transfer_print(active_player.name, player_to_name, sum)
-
+            
             self.player_number = (self.player_number + 1) % self.players_count
-        # else:
-        #     print("relax and skip your move")
 
     def active(self):
         for player in self.players:
