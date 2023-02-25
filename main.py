@@ -2,7 +2,7 @@ import random
 import special_cells
 
 
-property_list = {"p1": [4000, None, 0], "p2": [3800, None, 0], "p3": [4400, None, 0], "s1" : [-1],    
+property_list = {"s0": [-1], "p1": [4000, None, 0], "p2": [3800, None, 0], "p3": [4400, None, 0], "s1" : [-1],    
                  "p4": [4000, None, 0], "p5": [4000, None, 0], "p6": [4000, None, 0], "s2" : [-1], 
                  "p7": [4000, None, 0], "p8": [4000, None, 0], "p9": [4000, None, 0], "s3" : [-1],   
                  "p10": [4000, None, 0], "p11": [4000, None, 0], "p12": [4000, None, 0], "s4" : [-1]}
@@ -49,6 +49,9 @@ class Interface:
 
     def surcharge(self, player):
         print(f"player {player.name} got into a fight with a tax worker in a bar and was subject to additional taxation")
+    
+    def start_position(self, player):
+        print(f"player {player.name} finish another round!!!")
 
 class Player:
     def __init__(self, name):
@@ -60,8 +63,9 @@ class Player:
 
     def dice_roll(self):
         self.cell = (self.cell + random.randint(1, 12))
-        if self.cell > cells_count:
+        if self.cell >= cells_count:
             self.money += 1000
+            print(f"{self.name} back to the start position and got 1000$")
         self.cell %= cells_count
 
     def cost_for_another_players(self):

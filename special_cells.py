@@ -1,3 +1,6 @@
+def start(player):
+    player.money += 1000
+
 def forfeit(player):
     player.money -= 1000
 
